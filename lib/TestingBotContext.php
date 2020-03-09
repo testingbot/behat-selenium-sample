@@ -2,6 +2,8 @@
 
 require 'vendor/autoload.php';
 
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+
 class TestingBotContext extends Behat\Behat\Context\BehatContext
 {
     protected $CONFIG;

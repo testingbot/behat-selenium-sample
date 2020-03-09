@@ -6,6 +6,7 @@ use Behat\Behat\Context\BehatContext,
   Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode,
     Behat\Gherkin\Node\TableNode;
+use Facebook\WebDriver\WebDriverBy;
 
 class FeatureContext extends TestingBotContext {
   /** @Given /^I am on "([^"]*)"$/ */
