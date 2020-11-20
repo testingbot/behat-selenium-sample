@@ -1,33 +1,32 @@
 default:
-   paths:
-       features: '../features/single'
-       bootstrap:  '../features/bootstrap'
-   context:
-       parameters:
-           testingbot:
-               server: "hub.testingbot.com"
-               user: "TB_KEY"
-               key: "TB_SECRET"
-
-               capabilities:
-                   build: "behat-selenium-sample"
-                   name: "parallel-behat-test"
-
-
-               environments:
-                   -
-                       browserName: chrome
-                       version: latest
-                       platform: Win10
-                   -
-                       browserName: chrome
-                       version: latest-1
-                       platform: Win10
-                   -
-                       browserName: chrome
-                       version: latest-2
-                       platform: Win10
-                   -
-                       browserName: chrome
-                       version: latest-3
-                       platform: Win10
+    autoload:
+        '': '%paths.base%/../features/bootstrap'
+    suites:
+        default:
+            paths: [ '%paths.base%/../features/single' ]
+            contexts:
+                - FeatureContext:
+                    parameters:
+                        server: "hub.testingbot.com"
+                        user: "TB_KEY"
+                        key: "TB_SECRET"
+                        capabilities:
+                            build: "behat-selenium-sample"
+                            name: "single-behat-test"
+                        browsers:
+                            -
+                                browserName: chrome
+                                version: latest
+                                platform: Win10
+                            -
+                                browserName: chrome
+                                version: latest-1
+                                platform: Win10
+                            -
+                                browserName: chrome
+                                version: latest-2
+                                platform: Win10
+                            -
+                                browserName: chrome
+                                version: latest-3
+                                platform: Win10
