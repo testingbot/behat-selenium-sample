@@ -1,6 +1,8 @@
 # Behat-Selenium-Sample
 TestingBot provides an online grid of browsers and mobile devices to run Automated tests on via Selenium WebDriver. This example demonstrates how to use Behat to run tests across several browsers.
 
+*This example uses Behat 2. We also have a [Behat 3 Example](https://github.com/testingbot/behat-selenium-sample/tree/behat3)*
+
 ## Setup 
 
 1. Clone this repo:
