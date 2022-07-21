@@ -5,6 +5,9 @@ on: push
 
 jobs:
   tests:
+    env:
+      TB_KEY: ${{ secrets.TB_KEY }}
+      TB_SECRET: ${{ secrets.TB_SECRET }}
     name: Unit Testing
     runs-on: ubuntu-latest
     steps:
