@@ -1,0 +1,17 @@
+---
+name: Tests
+
+on: push
+
+jobs:
+  tests:
+    name: Unit Testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - uses: nanasess/setup-php@v3
+      - uses: php-actions/composer@v6
+        with:
+          php-version: '7.4'
+      - run: php composer.phar single
+
