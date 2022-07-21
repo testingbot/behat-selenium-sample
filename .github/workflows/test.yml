@@ -9,9 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.1.0
-      - uses: nanasess/setup-php@v3
-      - uses: php-actions/composer@v6
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
+          extensions: zip
+      - uses: php-actions/composer@v6
       - run: php composer.phar single
 
