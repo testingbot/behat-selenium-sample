@@ -1,6 +1,6 @@
 {
   "require": {
-      "behat/behat": "3.8.*@stable",
+      "behat/behat": "3.11.*@stable",
       "php-webdriver/webdriver": "dev-main",
       "symfony/yaml": "*"
   },
