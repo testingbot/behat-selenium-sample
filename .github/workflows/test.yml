@@ -8,11 +8,14 @@ jobs:
     name: Unit Testing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.1.0
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v3
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
-          extensions: zip
-      - uses: php-actions/composer@v6
-      - run: php composer.phar single
-
+          extensions: mbstring, intl, zip
+          coverage: none
+      - name: Install PHP dependencies
+        run: composer update --no-interaction
+      - name: Run tests
+        run: php composer.phar single
