@@ -18,4 +18,4 @@ jobs:
       - name: Install PHP dependencies
         run: composer update --no-interaction
       - name: Run tests
-        run: php composer.phar single
+        run: composer single
