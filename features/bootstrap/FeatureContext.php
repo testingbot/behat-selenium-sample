@@ -10,27 +10,18 @@ class FeatureContext extends TestingBotContext {
     self::$driver->get($url);
   }
 
-  /** @When /^I search for "([^"]*)"$/ */
-  public function iSearchFor($searchText) {
-    $element = self::$driver->findElement(WebDriverBy::name("q"));
-    $element->sendKeys($searchText);
-    $element->submit();
+  /** @When /^I click "([^"]*)"$/ */
+  public function iClickOn($linkText) {
+    $element = self::$driver->findElement(WebDriverBy::linkText($linkText));
+    $element->click();
     sleep(5);
   }
 
-  /** @Then /^I get title as "([^"]*)"$/ */
+  /** @Then /^the URL should be "([^"]*)"$/ */
   public function iShouldGet($string) {
-    $title = self::$driver->getTitle();
-    if ((string)  $string !== $title) {
-      throw new Exception("Expected title: '". $string. "'' Actual is: '". $title. "'");
-    }
-  }
-
-  /** @Then /^I should see "([^"]*)"$/ */
-  public function iShouldSee($string) {
-    $source = self::$driver->getPageSource();
-    if (strpos($source, $string) === false) {
-      throw new Exception("Expected to see: '". $string. "'' Actual is: '". $source. "'");
+    $currentUrl = self::$driver->getCurrentUrl();
+    if ((string)  $string !== $currentUrl) {
+      throw new Exception("Expected URL: '". $string. "'' Actual is: '". $currentUrl. "'");
     }
   }
 }

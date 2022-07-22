@@ -1,6 +1,6 @@
-Feature: Google's Search Functionality
+Feature: TestingBot Functionality
 
-Scenario: Can find search results
-    Given I am on "https://www.google.com/ncr"
-    When I search for "TestingBot"
-    Then I get title as "TestingBot - Google Search"
+Scenario: Open TestingBot
+    Given I am on "https://testingbot.com"
+    When I click "Features"
+    Then the URL should be "https://testingbot.com/features"
