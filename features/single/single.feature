@@ -1,6 +1,6 @@
-Feature: Google's Search Functionality
+Feature: TestingBot homepage
 
-Scenario: Can find search results
-    Given I am on "https://www.google.com/ncr"
-    When I search for "TestingBot"
-    Then I get title as "TestingBot - Google Search"
+Scenario: The homepage loads
+    Given I am on "https://testingbot.com"
+    Then the title should contain "TestingBot"
+    And I should see "Cross Browser Testing"

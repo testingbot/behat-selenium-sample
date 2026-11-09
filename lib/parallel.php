@@ -1,26 +1,31 @@
 <?php
 
-require 'vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
+
 use Symfony\Component\Yaml\Yaml;
 
-$config_file = getenv('CONFIG_FILE');
-if(!$config_file) $config_file = 'config/single.conf.yml';
-$CONFIG = Yaml::parse(file_get_contents($config_file))["default"]["context"]["parameters"]["testingbot"];
+// Runs the suite once per environment in the config file, all at the same time.
+$configFile = $argv[1] ?? 'config/parallel.conf.yml';
+$config = Yaml::parseFile($configFile);
+$environments = $config['default']['suites']['default']['contexts'][0]['FeatureContext']['testingbot']['environments'];
 
-$procs = array();
+$behat = escapeshellarg(__DIR__ . '/../vendor/bin/behat');
+$procs = [];
 
-foreach ($CONFIG['environments'] as $key => $value) {
-    $cmd = "TASK_ID=$key ./bin/behat --config=". getenv("CONFIG_FILE")." 2>&1\n";
-    print_r($cmd);
-
-    $procs[$key] = popen($cmd, "r");
+foreach (array_keys($environments) as $taskId) {
+    $cmd = "TASK_ID=$taskId " . PHP_BINARY . " $behat --config=" . escapeshellarg($configFile) . " 2>&1";
+    echo $cmd . PHP_EOL;
+    $procs[$taskId] = popen($cmd, 'r');
 }
 
-foreach ($procs as $key => $value) {
-    while (!feof($value)) {
-        print fgets($value, 4096);
+$failed = false;
+foreach ($procs as $taskId => $proc) {
+    while (!feof($proc)) {
+        echo fgets($proc, 4096);
     }
-    pclose($value);
+    if (pclose($proc) !== 0) {
+        $failed = true;
+    }
 }
 
-?>
+exit($failed ? 1 : 0);
