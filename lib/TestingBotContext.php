@@ -1,45 +1,58 @@
 <?php
 
-require 'vendor/autoload.php';
-
+use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 
-class TestingBotContext extends Behat\Behat\Context\BehatContext
+/**
+ * Starts a browser on the TestingBot grid before each scenario and
+ * reports the scenario result to TestingBot afterwards.
+ */
+class TestingBotContext implements Context
 {
-    protected $CONFIG;
-    protected static $driver;
+    /** @var RemoteWebDriver */
+    protected $driver;
 
-    public function __construct($parameters){
-        $GLOBALS['CONFIG'] = $parameters["testingbot"];
+    /** @var array */
+    private $config;
 
-        $GLOBALS['USERNAME'] = getenv('TB_KEY');
-        if(!$GLOBALS['USERNAME']) $GLOBALS['USERNAME'] = $GLOBALS['CONFIG']['user'];
-
-        $GLOBALS['ACCESS_KEY'] = getenv('TB_SECRET');
-        if(!$GLOBALS['ACCESS_KEY']) $GLOBALS['ACCESS_KEY'] = $GLOBALS['CONFIG']['key'];
+    public function __construct(array $testingbot)
+    {
+        $this->config = $testingbot;
     }
 
-    /** @BeforeFeature */
-    public static function setup()
+    /** @BeforeScenario */
+    public function startBrowser()
     {
-        $CONFIG = $GLOBALS['CONFIG'];
-        $task_id = getenv('TASK_ID') ? getenv('TASK_ID') : 0;
+        $key = getenv('TESTINGBOT_KEY') ?: getenv('TB_KEY') ?: $this->config['key'];
+        $secret = getenv('TESTINGBOT_SECRET') ?: getenv('TB_SECRET') ?: $this->config['secret'];
+        $taskId = getenv('TASK_ID') ?: 0;
 
-        $url = "https://" . $GLOBALS['USERNAME'] . ":" . $GLOBALS['ACCESS_KEY'] . "@" . $CONFIG['server'] ."/wd/hub";
-        $caps = $CONFIG['environments'][$task_id];
+        $caps = $this->config['environments'][$taskId];
+        $tbOptions = $this->config['tb:options'] ?? [];
+        $tbOptions['key'] = $key;
+        $tbOptions['secret'] = $secret;
+        $caps['tb:options'] = $tbOptions;
 
-        foreach ($CONFIG["capabilities"] as $key => $value) {
-            if (!array_key_exists($key, $caps))
-                $caps[$key] = $value;
+        $this->driver = RemoteWebDriver::create(
+            'https://' . $this->config['server'] . '/wd/hub',
+            new DesiredCapabilities($caps)
+        );
+    }
+
+    /** @AfterScenario */
+    public function stopBrowser(AfterScenarioScope $scope)
+    {
+        if (!$this->driver) {
+            return;
         }
-
-        self::$driver = RemoteWebDriver::create($url, $caps);
-    }
-
-    /** @AfterFeature */
-    public static function tearDown()
-    {
-        self::$driver->quit();
+        try {
+            $passed = $scope->getTestResult()->isPassed();
+            $this->driver->executeScript('tb:test-result=' . ($passed ? 'passed' : 'failed'));
+        } finally {
+            $this->driver->quit();
+            $this->driver = null;
+        }
     }
 }
-?>
