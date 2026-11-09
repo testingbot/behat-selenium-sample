@@ -9,21 +9,25 @@ $configFile = $argv[1] ?? 'config/parallel.conf.yml';
 $config = Yaml::parseFile($configFile);
 $environments = $config['default']['suites']['default']['contexts'][0]['FeatureContext']['testingbot']['environments'];
 
-$behat = escapeshellarg(__DIR__ . '/../vendor/bin/behat');
+$behat = __DIR__ . '/../vendor/bin/behat';
 $procs = [];
 
 foreach (array_keys($environments) as $taskId) {
-    $cmd = "TASK_ID=$taskId " . PHP_BINARY . " $behat --config=" . escapeshellarg($configFile) . " 2>&1";
-    echo $cmd . PHP_EOL;
-    $procs[$taskId] = popen($cmd, 'r');
+    // Pass TASK_ID through the child's environment (works on Windows too)
+    $cmd = [PHP_BINARY, $behat, '--config=' . $configFile];
+    $env = array_merge(getenv(), ['TASK_ID' => (string) $taskId]);
+    echo "TASK_ID=$taskId " . implode(' ', $cmd) . PHP_EOL;
+    $procs[$taskId] = proc_open($cmd, [1 => ['pipe', 'w'], 2 => ['redirect', 1]], $pipes, null, $env);
+    $procs[$taskId] = [$procs[$taskId], $pipes[1]];
 }
 
 $failed = false;
-foreach ($procs as $taskId => $proc) {
-    while (!feof($proc)) {
-        echo fgets($proc, 4096);
+foreach ($procs as [$proc, $stdout]) {
+    while (!feof($stdout)) {
+        echo fgets($stdout, 4096);
     }
-    if (pclose($proc) !== 0) {
+    fclose($stdout);
+    if (proc_close($proc) !== 0) {
         $failed = true;
     }
 }
